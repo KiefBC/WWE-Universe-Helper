@@ -1,0 +1,51 @@
+{% extends "template.html" %}
+
+{% block content %}
+
+<div class="container text-center">
+  <div class="row align-items-start">
+    <div class="col">
+        <h1>Build A Show</h1>
+        <p>Build your show here</p>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Add Show Name -->
+            <div class="form-group">
+                <label for="{{ add_show_form.show_name.id_for_label }}">Show Name</label>
+                {{ add_show_form.show_name }}
+            </div>
+
+            <!-- Add Show Date -->
+            <div class="form-group">
+                <label for="{{ add_show_form.show_date.id_for_label }}">Show Date</label>
+                {{ add_show_form.show_date }}
+            </div>
+            <button type="submit" name="add_show_form">Submit</button>
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </form>
+    </div>
+
+    <div class="col">
+        <h1>Build A Title Belt</h1>
+        <p>Build your Title Belt here</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ add_title_form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="col">
+        <h1>Build A Wrestler</h1>
+        <p>Build your Wrestler here</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ add_wrestler_form.as_p }}
+            <button type="submit" id="add_wrestler_form" name="add_wrestler_form">Submit</button>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
