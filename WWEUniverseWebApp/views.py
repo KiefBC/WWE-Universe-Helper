@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
+from django.core.management import call_command
 
 from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
 from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts
@@ -29,6 +30,22 @@ class ComingSoon(View):
 
     def get(self, request):
         return render(request, self.template_name, self.context)
+
+    def run_db_reset(request):
+        """
+        This method resets our database.
+        :param request:
+        :return:
+        """
+
+        try:
+            # Call the db_reset command
+            call_command('reset_db')
+            # Redirect to the coming_soon page
+            return redirect('coming_soon')
+        except Exception as e:
+            messages.error(request, f'Error: {e}')
+            return redirect('coming_soon')
 
     def post(self, request):
         """

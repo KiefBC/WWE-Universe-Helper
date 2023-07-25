@@ -9,6 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Reset DB
+        print('Flushing the Database')
         call_command('flush', interactive=False)
         print('Doing our initial migrations')
         call_command('makemigrations')

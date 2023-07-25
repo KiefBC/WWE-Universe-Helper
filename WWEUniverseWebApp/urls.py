@@ -10,4 +10,5 @@ urlpatterns = [
     path('add_title/', lambda request: redirect('coming_soon'), name='add_title'),
     # add_show/ redirects to coming_soon/
     path('add_show/', lambda request: redirect('coming_soon'), name='add_show'),
+    path('run_reset/', ComingSoon.run_db_reset, name='run_reset'),
     ]
