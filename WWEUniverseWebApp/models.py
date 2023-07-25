@@ -24,14 +24,20 @@ class Shows(models.Model):
     """
     This is our model for representing Wrestling shows.
     """
-
-    id = models.IntegerField(primary_key=True)
-    show_id = models.IntegerField(default=0)
+    id = models.AutoField(primary_key=True)
+    show_id = models.IntegerField(default=1)
     show_name = models.CharField(max_length=100)
-    show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK)
+    show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
 
     def __str__(self):
         return self.show_name
+
+    class Meta:
+        """
+        This is our meta class for Shows.
+        """
+        # This will make sure that the show_name is unique
+        unique_together = ('show_name', 'show_date')
 
     def save(self, *args, **kwargs):
         """
@@ -47,13 +53,13 @@ class Shows(models.Model):
 
             if show_exists:
                 # If Show exists, use its ID
-                self.id = show_exists.show_id
+                self.show_id = show_exists.show_id
             else:
                 # If Show doesn't exist, create a new ID
                 # Get the last Show ID
-                max_show_id = Shows.objects.all().aggregate(models.Max('id'))['id__max']
+                max_show_id = Shows.objects.all().aggregate(models.Max('show_id'))['show_id__max']
                 # We use or 0 because if there are no Shows, max_show_id will be None
-                self.id = (max_show_id or 0) + 1
+                self.show_id = (max_show_id or 0) + 1
 
         super(Shows, self).save(*args, **kwargs)
 
@@ -95,7 +101,7 @@ class TitleBelts(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     weight_class = models.CharField(max_length=3, choices=WEIGHT_CLASSES)
     current_holder = models.ForeignKey(Wrestlers, to_field='name', on_delete=models.CASCADE, null=True)
     show = models.ForeignKey(Shows, on_delete=models.CASCADE)
@@ -103,19 +109,6 @@ class TitleBelts(models.Model):
     # if the belt is retired
     retired = models.BooleanField(default=False)
     retired_date = models.DateField(null=True)
-
-
-class ShowTitles(models.Model):
-    """
-    This is our models for representing Title Belts on any given Show.
-    """
-
-    id = models.AutoField(primary_key=True)
-    show = models.ForeignKey(Shows, on_delete=models.CASCADE)
-    title_belt = models.ForeignKey(TitleBelts, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.title_belt.name} on {self.show.show_name}"
 
 
 class WrestlerTitles(models.Model):

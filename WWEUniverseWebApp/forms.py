@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from django import forms
 from .models import Wrestlers, TitleBelts, Shows
 
@@ -16,7 +18,7 @@ class AddWrestlerForm(forms.ModelForm):
         'weight_class': forms.Select(attrs={'class': 'form-control'})
     }
 
-
+# TODO: Is it possible to use another table to populate the choices for the current show field?
 class AddTitleBelt(forms.ModelForm):
     """
     This is our form for adding a Title Belt to our Title Belts Table.
@@ -33,6 +35,12 @@ class AddTitleBelt(forms.ModelForm):
         self.fields['current_holder'].empty_label = 'Select Current Holder'
         # Allow Current Holder to be blank
         self.fields['current_holder'].required = False
+        # Limit the Show Select Field to one option per Show
+        # all_shows = Shows.objects.order_by('show_name')
+        # unique_shows = [next(g) for k, g in groupby(all_shows, key=lambda x: x.show_name)]
+        # self.fields['show'].queryset = unique_shows
+
+
 
     def save(self, commit=True):
         """

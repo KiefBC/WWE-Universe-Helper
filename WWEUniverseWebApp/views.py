@@ -1,9 +1,9 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib import messages
-from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Wrestlers, Shows, TitleBelts, ShowTitles
-from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
 
+from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
+from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts
 
 # TODO: Add Real Website
 class ComingSoon(View):
@@ -76,7 +76,6 @@ class ComingSoon(View):
         elif 'add_title_form' in request.POST:
             form = AddTitleBelt(request.POST)
             if form.is_valid():
-
                 # LOGIC
                 # Can't have two title belts with the same name
                 # Can't have two title belts with the same name on the same show
@@ -95,8 +94,10 @@ class ComingSoon(View):
                 show_name = form.cleaned_data['show']
                 title_name_occupied_on_show = TitleBelts.objects.filter(name=title_name, show=show_name).exists()
                 if title_name_occupied_on_show:
-                    messages.error(request, f'"{title_name}" is unfortunately already occupied on <{show_name}>. Please pick another Show or pick another Title Name')
+                    messages.error(request,
+                                   f'"{title_name}" is unfortunately already occupied on <{show_name}>. Please pick another Show or pick another Title Name')
                     return redirect('coming_soon')
+
 
                 form.save()
                 return redirect('coming_soon')
