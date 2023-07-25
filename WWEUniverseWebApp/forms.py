@@ -31,6 +31,22 @@ class AddTitleBelt(forms.ModelForm):
         # Inserting a unselectable option at the top of the Current Holder Select Field
         self.fields['current_holder'].queryset = Wrestlers.objects.all()
         self.fields['current_holder'].empty_label = 'Select Current Holder'
+        # Allow Current Holder to be blank
+        self.fields['current_holder'].required = False
+
+    def save(self, commit=True):
+        """
+        This method overrides the save method to capitalize the name before saving it to the database.
+        :param commit:
+        :return:
+        """
+        instance = super().save(commit=False)
+        instance.name = instance.name.title()
+
+        if commit:
+            instance.save()
+
+        return instance
 
     widgets = {
         'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title Belt Name'}),
