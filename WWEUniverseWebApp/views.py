@@ -5,6 +5,7 @@ from django.views import View
 from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
 from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts
 
+
 # TODO: Add Real Website
 class ComingSoon(View):
     template_name = 'coming_soon.html'
@@ -13,6 +14,9 @@ class ComingSoon(View):
     weight_classes = WEIGHT_CLASSES
     days_of_week = DAYS_OF_WEEK
 
+    # Grab all of our Shows for our Show Select Field
+    shows = Shows.objects.all().order_by('show_name')
+
     # Context for our template
     context = {
         'weight_classes': weight_classes,
@@ -20,6 +24,7 @@ class ComingSoon(View):
         'add_wrestler_form': AddWrestlerForm(),
         'add_title_form': AddTitleBelt(),
         'add_show_form': AddAShow(),
+        'shows': shows,
     }
 
     def get(self, request):
@@ -90,14 +95,6 @@ class ComingSoon(View):
                     messages.error(request, f'The name "{title_name}" is already occupied')
                     return redirect('coming_soon')
 
-                # Check if the title_name is occupied on the same show
-                show_name = form.cleaned_data['show']
-                title_name_occupied_on_show = TitleBelts.objects.filter(name=title_name, show=show_name).exists()
-                if title_name_occupied_on_show:
-                    messages.error(request,
-                                   f'"{title_name}" is unfortunately already occupied on <{show_name}>. Please pick another Show or pick another Title Name')
-                    return redirect('coming_soon')
-
-
                 form.save()
+
                 return redirect('coming_soon')
