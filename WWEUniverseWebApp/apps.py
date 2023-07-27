@@ -1,8 +1,8 @@
 from django.apps import AppConfig
-from django.core.management import call_command
-import os
-from django.db import connection
 from django.core.cache import cache
+from django.core.management import call_command
+from django.db import connection
+
 
 class WweuniversewebappConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -10,6 +10,10 @@ class WweuniversewebappConfig(AppConfig):
 
     # This is where we import our signals
     def ready(self):
+        """
+        This method is called when our app is ready.
+        """
+
         if not cache.get('db_reset_run'):
             with connection.cursor() as cursor:
                 # Check if we have any tables

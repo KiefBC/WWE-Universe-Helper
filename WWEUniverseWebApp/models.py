@@ -85,6 +85,17 @@ class Wrestlers(models.Model):
         wrestler_name = self.name.title()
         return wrestler_name
 
+    def update_ratio(self, win, loss):
+        """
+        This method updates the win and loss record of the Wrestler and calculates their "ratio"
+        In the WrestlerStats Table whenever a Wrestler wins or loses a match.
+        """
+
+        self.wins = win
+        self.losses = loss
+        self.ratio = win / loss
+        self.save()
+
 
 class TitleBelts(models.Model):
     """
@@ -95,3 +106,16 @@ class TitleBelts(models.Model):
     name = models.CharField(max_length=100, unique=True)
     weight_class = models.CharField(max_length=3, choices=WEIGHT_CLASSES)
     current_holder = models.ForeignKey(Wrestlers, to_field='name', on_delete=models.CASCADE, null=True)
+
+
+class WrestlerStats(models.Model):
+    """
+    This will be our model for representing the stats of each Wrestler.
+    Recording both Wins and Losses to calculate a ratio.
+    """
+
+    id = models.AutoField(primary_key=True)
+    wrestler = models.ForeignKey(Wrestlers, to_field='name', on_delete=models.CASCADE)
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    ratio = models.FloatField(default=0.0)

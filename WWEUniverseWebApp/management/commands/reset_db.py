@@ -1,7 +1,8 @@
+import random
+
 from django.core.management import call_command, BaseCommand
-from django.db import connection
+
 import WWEUniverseWebApp.models
-import time
 
 
 class Command(BaseCommand):
@@ -77,3 +78,18 @@ class Command(BaseCommand):
                 print(f'Added {title} to the Title Belts Table')
             else:
                 print(f'{title} already exists in the Title Belts Table')
+
+        # Add a random win and loss to each wrestler
+        print('Adding random wins and losses to each wrestler')
+        wins_losses = {}
+        # Loop through each wrestler and update the dictionary with values
+        for wrestler in WWEUniverseWebApp.models.Wrestlers.objects.all():
+            wins_losses[wrestler.name] = {'wins': random.randint(0, 100), 'losses': random.randint(0, 100)}
+        # Apply the dictionary to the WrestlerStats Table
+        for wrestler, attrs in wins_losses.items():
+            WWEUniverseWebApp.models.WrestlerStats.objects.update_or_create(
+                wrestler=WWEUniverseWebApp.models.Wrestlers.objects.get(name=wrestler),
+                wins=attrs['wins'],
+                losses=attrs['losses'],
+            )
+            print(f'Added {attrs["wins"]} wins and {attrs["losses"]} losses to {wrestler}')

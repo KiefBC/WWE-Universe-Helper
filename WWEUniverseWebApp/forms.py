@@ -1,6 +1,5 @@
-from itertools import groupby
-
 from django import forms
+
 from .models import Wrestlers, TitleBelts, Shows
 
 

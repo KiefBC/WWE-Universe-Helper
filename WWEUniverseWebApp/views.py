@@ -1,13 +1,12 @@
 from django.contrib import messages
+from django.core.management import call_command
 from django.shortcuts import render, redirect
 from django.views import View
-from django.core.management import call_command
 
 from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
-from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts
+from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, WrestlerStats
 
 
-# TODO: Add Real Website
 class ComingSoon(View):
     template_name = 'coming_soon.html'
 
@@ -115,3 +114,22 @@ class ComingSoon(View):
                 form.save()
 
                 return redirect('coming_soon')
+
+
+class IndexWrestlers(View):
+    template_name = 'wrestler_index.html'
+
+    def get(self, request):
+        # Grab all of our Wrestlers
+        wrestlers = Wrestlers.objects.all().order_by('name', 'weight_class')
+        # Grab all of our Wrestlers Stats
+        wrestler_stats = WrestlerStats.objects.all().order_by('wrestler__name', 'wrestler__weight_class')
+        # Grab all our Title Belts
+        title_belts = TitleBelts.objects.all().order_by('name', 'weight_class')
+        # Zip our Wrestlers and Wrestler Stats together
+        wrestlers = zip(wrestlers, wrestler_stats, title_belts)
+        # Create our context
+        context = {
+            'wrestlers': wrestlers,
+        }
+        return render(request, self.template_name, context)

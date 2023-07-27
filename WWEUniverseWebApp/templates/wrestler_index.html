@@ -1,0 +1,16 @@
+{% extends 'template.html' %}
+
+{% block title %}
+    This Is Our List
+{% endblock %}
+
+{% block content %}
+    <div class="container testingstuff">
+        {% for wrestler, stat, title in wrestlers %}
+            <p>{{ wrestler.name }} is in the {{ wrestler.weight_class }}. They have {{ stat.wins }} Wins
+                and {{ stat.losses }} losses. This gives them a win/loss of {{ stat.ratio }}.</p>
+            <p>{{ wrestler.name }} currently holds {{ title.name }} </p>
+        {% endfor %}
+    </div>
+{% endblock %}
+```

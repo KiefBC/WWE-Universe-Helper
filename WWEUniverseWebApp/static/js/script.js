@@ -1,14 +1,8 @@
 window.onload = function () {
 
-    // document.addEventListener("DOMContentLoaded", function () {
-    //     const dropdown = document.getElementById("id_some_field"); // Replace "id_some_field" with the actual ID of your dropdown field
-    //     const blankOption = dropdown.querySelector("option[value='']");
-    //
-    //     if (blankOption) {
-    //         blankOption.disabled = true;
-    //     }
-    // });
-
+    // This code is for the "Run" button on the home page
+    // It makes an AJAX request to the Django server to run the script
+    // It will reset the database and re-populate it with the pre-determined data
     document.getElementById("runButton").addEventListener("click", function () {
         // Make an AJAX request to your Django server
         var xhr = new XMLHttpRequest();

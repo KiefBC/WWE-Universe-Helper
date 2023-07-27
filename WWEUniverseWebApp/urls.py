@@ -1,6 +1,7 @@
-from django.urls import path
-from .views import ComingSoon
 from django.shortcuts import redirect
+from django.urls import path
+
+from .views import ComingSoon, IndexWrestlers
 
 urlpatterns = [
     path('', ComingSoon.as_view(), name='coming_soon'),
@@ -10,5 +11,8 @@ urlpatterns = [
     path('add_title/', lambda request: redirect('coming_soon'), name='add_title'),
     # add_show/ redirects to coming_soon/
     path('add_show/', lambda request: redirect('coming_soon'), name='add_show'),
+    # we use this to run our reset_db command
     path('run_reset/', ComingSoon.run_db_reset, name='run_reset'),
-    ]
+    # this is for listing off all of our wrestlers
+    path('wrestlers/', IndexWrestlers.as_view(), name='list_wrestlers'),
+]
