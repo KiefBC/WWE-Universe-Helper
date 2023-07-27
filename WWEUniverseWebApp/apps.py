@@ -13,6 +13,8 @@ class WweuniversewebappConfig(AppConfig):
         """
         This method is called when our app is ready.
         """
+        # Import our signals
+        import WWEUniverseWebApp.signals
 
         if not cache.get('db_reset_run'):
             with connection.cursor() as cursor:
