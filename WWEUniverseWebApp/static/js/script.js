@@ -5,11 +5,11 @@ window.onload = function () {
     // It will reset the database and re-populate it with the pre-determined data
     document.getElementById("runButton").addEventListener("click", function () {
         // Make an AJAX request to your Django server
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open("GET", "{% url 'run_reset_db' %}", true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
-                var response = JSON.parse(xhr.responseText);
+                let response = JSON.parse(xhr.responseText);
                 if (response.status === "success") {
                     alert("Database reset successfully.");
                 } else {

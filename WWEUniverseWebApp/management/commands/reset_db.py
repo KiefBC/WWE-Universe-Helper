@@ -25,6 +25,21 @@ class Command(BaseCommand):
             'Jimmy USO': {'weight_class': 'HW'},
             'Drew McIntyre': {'weight_class': 'HW'},
             'Bobby Lashley': {'weight_class': 'HW'},
+            'Sheamus': {'weight_class': 'LHW'},
+            'Randy Orton': {'weight_class': 'HW'},
+            'AJ Styles': {'weight_class': 'HW'},
+            'Jeff Hardy': {'weight_class': 'HW'},
+            'Kofi Kingston': {'weight_class': 'LHW'},
+            'Xavier Woods': {'weight_class': 'CW'},
+            'Big E': {'weight_class': 'CW'},
+            'The Miz': {'weight_class': 'CW'},
+            'John Morrison': {'weight_class': 'LHW'},
+            'Riddle': {'weight_class': 'CW'},
+            'Keith Lee': {'weight_class': 'CW'},
+            'Braun Strowman': {'weight_class': 'LHW'},
+            'Shelton Benjamin': {'weight_class': 'LHW'},
+            'Cedric Alexander': {'weight_class': 'LHW'},
+            'Elias': {'weight_class': 'HW'},
             # etc.
         }
 

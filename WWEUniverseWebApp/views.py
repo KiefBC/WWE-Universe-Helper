@@ -127,7 +127,7 @@ class IndexWrestlers(View):
         # Grab all our Title Belts
         title_belts = TitleBelts.objects.all().order_by('name', 'weight_class')
         # Zip our Wrestlers and Wrestler Stats together
-        wrestlers = zip(wrestlers, wrestler_stats, title_belts)
+        wrestlers = zip(wrestlers, wrestler_stats)
         # Create our context
         context = {
             'wrestlers': wrestlers,

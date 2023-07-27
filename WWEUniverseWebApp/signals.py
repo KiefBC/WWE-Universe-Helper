@@ -6,5 +6,11 @@ from .models import WrestlerStats
 
 @receiver(pre_save, sender=WrestlerStats)
 def calculate_ratio(sender, instance, **kwargs):
-    # Calculate the win-ratio of each Wrestler to 2 decimal places
+    # Make Sure No Zeros
+    if instance.wins == 0:
+        instance.wins = 1
+    if instance.losses == 0:
+        instance.losses = 1
+
+    # Calculate the win-ratio of each Wrestler before saving
     instance.ratio = round(instance.wins / instance.losses, 2)
