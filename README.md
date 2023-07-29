@@ -11,3 +11,8 @@ It can be annoying setting matches and not knowing the Power Ranking (Or rather 
 
 There is just a lot to be had and I can't find any Web Apps that can do this, that aren't paid, obscure or down-right malware. I don't expect this to be done any time soon as I am doing this while doing my Computer Science Program in College.
 
+# TO RUN THIS
+
+Go into the root -> open Terminal
+
+`python manage.py runserver`
