@@ -56,8 +56,6 @@ class AddTitleBelt(forms.ModelForm):
     }
 
 
-# TODO: Make Day Select Drop Down
-# TODO: Select Pre-Existing Show
 class AddAShow(forms.ModelForm):
     """
     This is our form for adding a Show to our Shows Table.
@@ -67,21 +65,21 @@ class AddAShow(forms.ModelForm):
         model = Shows
         fields = ['show_name', 'show_date']
 
-    def save(self, commit=True):
-        """
-        This method overrides the save method to capitalize the show_name before saving it to the database.
-        :param commit:
-        :return:
-        """
-        instance = super().save(commit=False)
-        instance.show_name = instance.show_name.lower()
-
-        if commit:
-            instance.save()
-
-        return instance
+    # def save(self, commit=True):
+    #     """
+    #     This method overrides the save method to capitalize the show_name before saving it to the database.
+    #     :param commit:
+    #     :return:
+    #     """
+    #     instance = super().save(commit=False)
+    #     instance.show_name = instance.show_name.lower()
+    #
+    #     if commit:
+    #         instance.save()
+    #
+    #     return instance
 
     widgets = {
         'show_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Show Name'}),
-        'show_date': forms.CheckboxSelectMultiple(),
+        'show_date': forms.Select(attrs={'class': 'form-control'})
     }

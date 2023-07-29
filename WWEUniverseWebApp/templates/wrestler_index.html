@@ -9,40 +9,6 @@
     <div class="container text-center">
         <div class="row">
 
-            <!-- Start of Filters and Search -->
-            <div class="col-lg-2 center-block" id="searching">
-                <h3>Filter by Weight Class:</h3>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="LHW" id="lightHeavyweightOption">
-                    <label class="form-check-label" for="lightHeavyweightOption">
-                        Light Heavyweight
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="HW" id="heavyweightOption">
-                    <label class="form-check-label" for="heavyweightOption">
-                        Heavyweight
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="CW" id="cruiserweightOption">
-                    <label class="form-check-label" for="cruiserweightOption">
-                        Cruiserweight
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="SH" id="superHeavyweightOption">
-                    <label class="form-check-label" for="superHeavyweightOption">
-                        Super Heavyweight
-                    </label>
-                </div>
-
-                <!-- Search Bar -->
-                <button class="btn btn-primary mt-3" onclick="applyFilters()">Filter</button>
-                <input class="ps-3 mt-3" type="text" id="wrestlerIndexSearch" onkeyup="applyFilters()"
-                       placeholder="Search for names..">
-            </div>
-
             <!-- Start of Table -->
             <div class="col-lg-10" id="wrestlerTable">
                 <div class="container">
@@ -55,6 +21,7 @@
                             <th scope="col">Wins</th>
                             <th scope="col">Losses</th>
                             <th scope="col">Win/Loss Ratio</th>
+                            <th scope="col">Show</th>
                         </tr>
                         </thead>
                         <tbody class="table-group-divider">
@@ -65,6 +32,7 @@
                                 <td>{{ stat.wins }}</td>
                                 <td>{{ stat.losses }}</td>
                                 <td>{{ stat.ratio }}</td>
+                                <td>PLACEHOLDER</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -72,6 +40,56 @@
                 </div>
             </div>
 
+            <!-- Start of Filters and Search -->
+            <div class="col-lg-2">
+                <div class="col-lg-2 center-block">
+                    <h3 style="white-space: nowrap">Filter by Weight Class:</h3>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="LHW" id="lightHeavyweightOption">
+                        <label class="form-check-label" for="lightHeavyweightOption" style="white-space: nowrap">
+                            Light Heavyweight
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="HW" id="heavyweightOption">
+                        <label class="form-check-label" for="heavyweightOption" style="white-space: nowrap">
+                            Heavyweight
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="CW" id="cruiserweightOption">
+                        <label class="form-check-label" for="cruiserweightOption" style="white-space: nowrap">
+                            Cruiserweight
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="SH" id="superHeavyweightOption">
+                        <label class="form-check-label" for="superHeavyweightOption" style="white-space: nowrap">
+                            Super Heavyweight
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="applyFilters()">Filter</button>
+                <input class="ps-3 mt-3" type="text" id="wrestlerIndexSearch" onkeyup="applyFilters()"
+                       placeholder="Search for names..">
+
+                <!-- Build A Wrestler -->
+                <div class="col">
+                    <h1>Build A Wrestler</h1>
+                    <p>Build your Wrestler here</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ add_wrestler_form.as_p }}
+                        <button type="submit" id="add_wrestler_form" name="add_wrestler_form"
+                                class="btn btn-primary mt-3 mb-3">Submit
+                        </button>
+                        {% for message in messages %}
+                            <div class="alert alert-info">{{ message }}</div>
+                        {% endfor %}
+                    </form>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -146,10 +164,22 @@
                     x = rows[i].getElementsByTagName("TD")[n];
                     y = rows[i + 1].getElementsByTagName("TD")[n];
 
-                    if ((dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) ||
-                        (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
-                        shouldSwitch = true;
-                        break;
+                    // Parse the cell content as numbers for numeric columns
+                    if (n === 2 || n === 3 || n === 4) {
+                        let xValue = parseFloat(x.innerHTML.toLowerCase().replace(',', ''));
+                        let yValue = parseFloat(y.innerHTML.toLowerCase().replace(',', ''));
+
+                        if ((dir === "asc" && xValue > yValue) || (dir === "desc" && xValue < yValue)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        // For non-numeric columns, use regular string comparison
+                        if ((dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) ||
+                            (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
+                            shouldSwitch = true;
+                            break;
+                        }
                     }
                 }
 
@@ -165,6 +195,7 @@
                 }
             }
         }
+
 
         // Add the onclick attribute to the th elements
         function addOnClickToTH() {

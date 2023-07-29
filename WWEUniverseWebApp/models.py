@@ -20,6 +20,8 @@ DAYS_OF_WEEK = [
     ('SUN', 'Sunday'),
 ]
 
+
+
 # TODO: Remove show_date from Shows - it is not needed, why does it matter?
 class Shows(models.Model):
     """
@@ -28,8 +30,8 @@ class Shows(models.Model):
     id = models.AutoField(primary_key=True)
     show_id = models.IntegerField(default=1)
     show_name = models.CharField(max_length=100)
-    # show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
-    show_date = models.TextField(default='MON', help_text="Comma-separated list of days (e.g., 'MON, TUE')")
+    show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
+
 
     def __str__(self):
         return self.show_name
@@ -57,6 +59,20 @@ class Shows(models.Model):
                 self.show_id = (max_show_id or 0) + 1
 
         super(Shows, self).save(*args, **kwargs)
+
+    @staticmethod
+    def show_choices():
+        """
+        This method returns a list of Shows.
+        :return:
+        """
+
+        # Build our Show Choices
+        SHOW_CHOICES = [
+            (show.show_id, show.show_name) for show in set(Shows.objects.all().order_by('show_name'))
+        ]
+
+        return SHOW_CHOICES
 
 
 class Wrestlers(models.Model):
