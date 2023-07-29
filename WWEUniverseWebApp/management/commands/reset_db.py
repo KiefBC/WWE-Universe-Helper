@@ -1,5 +1,5 @@
 import random
-
+import time
 from django.core.management import call_command, BaseCommand
 
 import WWEUniverseWebApp.models
@@ -14,7 +14,7 @@ class Command(BaseCommand):
         call_command('flush', interactive=False)
         print('Doing our initial migrations')
         call_command('makemigrations')
-        # time.sleep(1)
+        # time.sleep(3)
         call_command('migrate')
 
         # Populate Our Wrestlers Table With Some Data

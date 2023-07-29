@@ -32,16 +32,6 @@ class Shows(models.Model):
     def __str__(self):
         return self.show_name
 
-    def name_and_date(self):
-        return f"{self.show_name} ({self.show_date})"
-
-    class Meta:
-        """
-        This is our meta class for Shows.
-        """
-        # This will make sure that the show_name is unique
-        unique_together = ('show_id', 'show_date')
-
     def save(self, *args, **kwargs):
         """
         This is our save method for Shows.
@@ -84,17 +74,6 @@ class Wrestlers(models.Model):
 
         wrestler_name = self.name.title()
         return wrestler_name
-
-    def update_ratio(self, win, loss):
-        """
-        This method updates the win and loss record of the Wrestler and calculates their "ratio"
-        In the WrestlerStats Table whenever a Wrestler wins or loses a match.
-        """
-
-        self.wins = win
-        self.losses = loss
-        self.ratio = win / loss
-        self.save()
 
 
 class TitleBelts(models.Model):
