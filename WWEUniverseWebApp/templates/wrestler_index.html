@@ -38,15 +38,15 @@
                 </div>
 
                 <!-- Search Bar -->
-                <button class="btn btn-primary mt-3" onclick="wrestlerFilterSearch()">Filter</button>
-                <input class="ps-3 mt-3" type="text" id="wrestlerIndexSearch" onkeyup="wrestlerTableSearch()"
+                <button class="btn btn-primary mt-3" onclick="applyFilters()">Filter</button>
+                <input class="ps-3 mt-3" type="text" id="wrestlerIndexSearch" onkeyup="applyFilters()"
                        placeholder="Search for names..">
             </div>
 
             <!-- Start of Table -->
             <div class="col-lg-10" id="wrestlerTable">
                 <div class="container">
-                    <table class="table table-hover table-bordered table-striped-columns table-success searchable"
+                    <table class="table table-hover table-bordered table-striped-columns table-success"
                            id="wrestlerIndexTable">
                         <thead class="table-dark">
                         <tr>
@@ -76,105 +76,83 @@
     </div>
 
     <script>
-        // This is our Searchbox function
+        // Function to apply both filters
+        // NOTE: having table on-top prevents filter from working
+        // NOTE: having table on-top prevents filter from working
+        function applyFilters() {
+            wrestlerFilterSearch();
+            wrestlerTableSearch();
+        }
+
+        // Function to filter the table rows based on the search box input
         function wrestlerTableSearch() {
-            // Declare variables
-            var input, filter, table, tr, td, i, txtValue;
+            let input, filter;
             input = document.getElementById("wrestlerIndexSearch");
             filter = input.value.toUpperCase();
-            table = document.getElementById("wrestlerIndexTable");
-            tr = table.getElementsByTagName("tr");
 
-            // Loop through all table rows, and hide those who don't match the search query
-            for (i = 1; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-
-                    }
+            // Loop through all rows and hide those which do not match the search filter
+            $('#wrestlerIndexTable tbody tr').each(function () {
+                let wrestlerName = $(this).find("td").first().text().toUpperCase();
+                let weightClass = $(this).data("weight-class");
+                if (
+                    wrestlerName.indexOf(filter) > -1 &&
+                    ($('.form-check-input:checked').length === 0 || $('.form-check-input:checked[value="' + weightClass + '"]').length > 0)
+                ) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
                 }
-            }
+            });
         }
 
         // Function to filter the table rows based on selected checkboxes
         function wrestlerFilterSearch() {
-            var selectedValues = [];
-            $('.form-check-input:checked').each(function () {
-                selectedValues.push($(this).val());
-            });
-            // If no checkboxes are selected, show all rows
+            let selectedValues = $('.form-check-input:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            // If no checkboxes are selected, consider all rows
             if (selectedValues.length === 0) {
                 $('#wrestlerIndexTable tbody tr').show();
-                return;
-            }
-            // Hide all rows first
-            $('#wrestlerIndexTable tbody tr').hide();
-            // Loop through the selected checkboxes and show rows that match the weight class
-            for (var i = 0; i < selectedValues.length; i++) {
-                var weightClass = selectedValues[i];
-                $('#wrestlerIndexTable tbody tr[data-weight-class="' + weightClass + '"]').show();
+            } else {
+                // Loop through all rows and hide those which do not match the checkbox filter
+                $('#wrestlerIndexTable tbody tr').each(function () {
+                    let weightClass = $(this).data("weight-class");
+                    if (
+                        selectedValues.includes(weightClass) &&
+                        ($('#wrestlerIndexSearch').val().trim() === '' || $(this).find("td").first().text().toUpperCase().indexOf($('#wrestlerIndexSearch').val().toUpperCase()) > -1)
+                    ) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
             }
         }
 
-        // This will add the onclick attribute to the th elements
-        function addOnClickToTH() {
-            // Get the table element by its ID
-            const table = document.getElementById('wrestlerIndexTable');
-
-            // If the table doesn't exist, log an error and return
-            if (!table) {
-                console.error('Table with ID "wrestlerIndexTable" not found.');
-                return;
-            }
-
-            // Get all the th elements within the table's thead
-            const thElements = table.querySelectorAll('thead th');
-
-            // Loop through the th elements and add the onclick attribute
-            thElements.forEach((th, index) => {
-                th.setAttribute('onclick', `sortTable(${index})`);
-            });
-        }
-
-        addOnClickToTH();
-
-        // This will sort the table by the column that is clicked
+        // Function to sort the table by the column that is clicked using bubble sort
         function wrestlerTableSort(n) {
-            // This function will sort the table by the column that is clicked
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
             table = document.getElementById("wrestlerIndexTable");
-            // Set the sorting direction to ascending:
             switching = true;
             dir = "asc";
-            // Make a loop that will continue until no switching has been done:
+
             while (switching) {
                 switching = false;
                 rows = table.rows;
+
                 for (i = 1; i < (rows.length - 1); i++) {
-                    // Start by saying there should be no switching:
-                    // Get the two elements you want to compare, one from current row and one from the next:
                     shouldSwitch = false;
                     x = rows[i].getElementsByTagName("TD")[n];
                     y = rows[i + 1].getElementsByTagName("TD")[n];
-                    // Check if the two rows should switch place, based on the direction, asc or desc:
-                    if (dir === "asc") {
-                        if (isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase() : parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else if (dir === "desc") {
-                        if (isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase() : parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
-                            shouldSwitch = true;
-                            break;
-                        }
+
+                    if ((dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) ||
+                        (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
+                        shouldSwitch = true;
+                        break;
                     }
                 }
-                // If a switch has been marked, make the switch and mark that a switch has been done:
+
                 if (shouldSwitch) {
                     rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
                     switching = true;
@@ -188,11 +166,22 @@
             }
         }
 
-        // Attach event listener to checkboxes
-        $('.form-check-input').on('change', function () {
-            wrestlerFilterSearch();
-        });
+        // Add the onclick attribute to the th elements
+        function addOnClickToTH() {
+            const table = document.getElementById('wrestlerIndexTable');
+            if (!table) {
+                console.error('Table with ID "wrestlerIndexTable" not found.');
+                return;
+            }
 
+            const thElements = table.querySelectorAll('thead th');
+            thElements.forEach((th, index) => {
+                th.setAttribute('onclick', `wrestlerTableSort(${index})`);
+            });
+        }
+
+        addOnClickToTH();
     </script>
+
 
 {% endblock %}
