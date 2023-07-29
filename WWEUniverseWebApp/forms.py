@@ -18,7 +18,6 @@ class AddWrestlerForm(forms.ModelForm):
     }
 
 
-# TODO: Is it possible to use another table to populate the choices for the current show field?
 class AddTitleBelt(forms.ModelForm):
     """
     This is our form for adding a Title Belt to our Title Belts Table.
@@ -57,6 +56,8 @@ class AddTitleBelt(forms.ModelForm):
     }
 
 
+# TODO: Make Day Select Drop Down
+# TODO: Select Pre-Existing Show
 class AddAShow(forms.ModelForm):
     """
     This is our form for adding a Show to our Shows Table.
@@ -73,7 +74,7 @@ class AddAShow(forms.ModelForm):
         :return:
         """
         instance = super().save(commit=False)
-        instance.show_name = instance.show_name.capitalize()
+        instance.show_name = instance.show_name.lower()
 
         if commit:
             instance.save()
@@ -82,5 +83,5 @@ class AddAShow(forms.ModelForm):
 
     widgets = {
         'show_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Show Name'}),
-        'show_date': forms.Select(attrs={'class': 'form-control'})
+        'show_date': forms.CheckboxSelectMultiple(),
     }

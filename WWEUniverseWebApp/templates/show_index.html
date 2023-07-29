@@ -1,0 +1,71 @@
+{% extends 'template.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Table Column -->
+            <div class="col-md-8">
+                <table class="table table-hover table-bordered table-striped-columns table-success"
+                       id="wrestlerIndexTable">
+                    <!-- Your table content here -->
+                    <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Show Name</th>
+                        <th scope="col">Days Of The Week</th>
+                        <th scope="col">Title Belts</th>
+                        <th scope="col">Roster Count</th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                    {% for show in shows %}
+                        <tr>
+                            <td>{{ show.show_name }}</td>
+                            <td>{{ show.show_date }}</td>
+                            <td>NULL</td>
+                            <td>NULL</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Column -->
+            <div class="col-md-4">
+                <!-- Create a Show -->
+                <h1>Build A Show</h1>
+                <p>Build your show here</p>
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <!-- Add Show Name -->
+                    <div class="form-group">
+                        <label for="{{ addShowForm.show_name.id_for_label }}">Show Name</label>
+                        {{ addShowForm.show_name }}
+                    </div>
+
+                    <!-- Add Show Date -->
+                    <div class="form-group">
+                        <label>Show Date</label><br>
+                        {% for choice_value, choice_label in choices %}
+                            <label>
+                                <input type="checkbox" name="{{ addShowForm.show_date.name }}"
+                                       value="{{ choice_value }}">
+                                {{ choice_label }}
+                            </label><br>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" name="add_show_form">Submit</button>
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript -->
+    <script src="{% static 'js/show.js' %}"></script>
+{% endblock %}

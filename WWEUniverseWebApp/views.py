@@ -52,7 +52,7 @@ class ComingSoon(View):
         :param request:
         :return:
         """
-        # TODO: Add Logic
+
         # Submitting new Wrestler
         if 'add_wrestler_form' in request.POST:
             # Create an instance of our AddWrestlerForm
@@ -115,7 +115,7 @@ class ComingSoon(View):
 
                 return redirect('coming_soon')
 
-
+# TODO: Fix Column Sorting for "13" vs "2" (Currently 2 comes before 13)
 class IndexWrestlers(View):
     template_name = 'wrestler_index.html'
 
@@ -133,3 +133,43 @@ class IndexWrestlers(View):
             'wrestlers': wrestlers,
         }
         return render(request, self.template_name, context)
+
+
+# TODO: All Show Titles should be Title Cased
+# TODO: If Show Title is less than 3 characters, it should be capitalized
+class IndexShows(View):
+    template_name = 'show_index.html'
+
+    def get(self, request):
+        # Grab all of our Shows
+        shows = set(Shows.objects.all().order_by('show_date'))
+        # Grab our Form
+        form = AddAShow()
+        # Create our context
+        context = {
+            'shows': shows,
+            'addShowForm': form,
+            'choices': DAYS_OF_WEEK,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        # Grab our Form
+        form = AddAShow(request.POST)
+        # Check if the form is valid
+        if form.is_valid():
+            # Grab the show_date from the form
+            show_date = form.cleaned_data['show_date']
+            # Check if the show_date is occupied
+            show_date_occupied = Shows.objects.filter(show_date=show_date).exists()
+
+            if show_date_occupied:
+                show_name_occupied = Shows.objects.get(show_date=show_date).show_name
+                messages.error(request, f'{show_date} is already occupied by {show_name_occupied}')
+
+                return redirect('list_shows')
+            else:
+                # Save the form
+                form.save()
+
+                return redirect('list_shows')

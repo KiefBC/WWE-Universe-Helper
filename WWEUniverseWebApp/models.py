@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 # The only weight classes available
 WEIGHT_CLASSES = [
@@ -19,7 +20,7 @@ DAYS_OF_WEEK = [
     ('SUN', 'Sunday'),
 ]
 
-
+# TODO: Remove show_date from Shows - it is not needed, why does it matter?
 class Shows(models.Model):
     """
     This is our model for representing Wrestling shows.
@@ -27,7 +28,8 @@ class Shows(models.Model):
     id = models.AutoField(primary_key=True)
     show_id = models.IntegerField(default=1)
     show_name = models.CharField(max_length=100)
-    show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
+    # show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
+    show_date = models.TextField(default='MON', help_text="Comma-separated list of days (e.g., 'MON, TUE')")
 
     def __str__(self):
         return self.show_name
