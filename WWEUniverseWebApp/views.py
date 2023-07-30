@@ -31,6 +31,7 @@ class ComingSoon(View):
     def get(self, request):
         return render(request, self.template_name, self.context)
 
+    @staticmethod
     def run_db_reset(request):
         """
         This method resets our database.
@@ -47,7 +48,8 @@ class ComingSoon(View):
             messages.error(request, f'Error: {e}')
             return redirect('coming_soon')
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """
         This method adds a Wrestler to our Wrestlers Table.
         :param request:
@@ -138,7 +140,8 @@ class IndexWrestlers(View):
 
         return render(request, self.template_name, context)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         if 'add_wrestler_form' in request.POST:
             form = AddWrestlerForm(request.POST)
             if form.is_valid():
@@ -197,7 +200,8 @@ class IndexShows(View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         # Grab our Form
         form = AddAShow(request.POST)
         # Check if the form is valid
