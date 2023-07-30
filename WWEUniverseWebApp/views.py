@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.core.management import call_command
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
-from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, WrestlerStats
+
+from .forms import AddWrestlerForm, AddTitleBelt, AddAShow, AddTitleBeltWrestler
+from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, TitleHolders
 
 
 class ComingSoon(View):
@@ -114,7 +116,8 @@ class ComingSoon(View):
                 return redirect('coming_soon')
 
 
-# TODO: Add Title Belt Option to Wrestler Entry
+# TODO: When Adding Title To New Wrestler, Remove From Previous Wrestler
+# TODO: Wrestler Names Should Be Unique and Title Cased
 class IndexWrestlers(View):
     template_name = 'wrestler_index.html'
 
@@ -122,37 +125,58 @@ class IndexWrestlers(View):
     show_choices = Shows.show_choices()
 
     def get(self, request):
-        # Grab all of our Wrestlers
-        wrestlers = Wrestlers.objects.all().order_by('name', 'weight_class')
-        # Grab all of our Wrestlers Stats
-        wrestler_stats = WrestlerStats.objects.all().order_by('wrestler__name', 'wrestler__weight_class')
-        # Zip our Wrestlers and Wrestler Stats together
-        wrestlers = zip(wrestlers, wrestler_stats)
-        # Create our context
+        wrestlers = Wrestlers.objects.select_related('stats').prefetch_related(
+            Prefetch('titleholders_set', to_attr='wrestler_titleholders'))
+
         context = {
             'wrestlers': wrestlers,
             'add_wrestler_form': AddWrestlerForm(),
             'weight_classes': WEIGHT_CLASSES,
             'show_choices': self.show_choices,
+            'add_title_to_form': AddTitleBeltWrestler(),
         }
+
         return render(request, self.template_name, context)
 
     def post(self, request):
-        # Grab our Form
-        form = AddWrestlerForm(request.POST)
-        # Check if the form is valid
-        if form.is_valid():
-            # Save the form
-            form.save()
-            # Alert the user
-            messages.success(request, f'{form.cleaned_data["name"]} has been added to the database')
-            # Redirect to the coming_soon page
-            return redirect('list_wrestlers')
-        else:
-            # Alert the user
-            messages.error(request, f'Error: {form.errors}')
-            # Redirect to the coming_soon page
-            return redirect('list_wrestlers')
+        if 'add_wrestler_form' in request.POST:
+            form = AddWrestlerForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f'{form.cleaned_data["name"]} has been added to the database')
+                return redirect('list_wrestlers')
+            else:
+                # Alert the user
+                messages.error(request, f'Error: {form.errors}')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+        elif 'add_title_form' in request.POST:
+            # Grab our Form
+            form = AddTitleBeltWrestler(request.POST)
+            if form.is_valid():
+
+                # Select Form Data and Grab the Wrestler and Title Belt
+                title_name = form.cleaned_data['title_belt']
+                wrestler_name = form.cleaned_data['wrestler']
+                month_won = form.cleaned_data['month_won']
+                day_won = form.cleaned_data['day_won']
+                selected_wrestler = Wrestlers.objects.get(name=wrestler_name)
+                selected_title = TitleBelts.objects.get(name=title_name)
+
+                # Add the Title Belt to the Wrestler in our TitleHolders Table
+                TitleHolders.objects.create(wrestler=selected_wrestler, title_belt=selected_title, month_won=month_won,
+                                            day_won=day_won)
+
+                # Alert the user
+                messages.success(request,
+                                 f'{title_name} has been added to {wrestler_name}. History has been made.')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+            else:
+                # Alert the user
+                messages.error(request, f'Error: {form.errors}')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
 
 
 # TODO: All Show Titles should be Title Cased

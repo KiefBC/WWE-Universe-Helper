@@ -21,18 +21,24 @@
                             <th scope="col">Wins</th>
                             <th scope="col">Losses</th>
                             <th scope="col">Win/Loss Ratio</th>
-                            <th scope="col">Show</th>
+                            <th scope="col">Current Titles</th>
                         </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                        {% for wrestler, stat in wrestlers %}
+                        {% for wrestler in wrestlers %}
                             <tr data-weight-class="{{ wrestler.weight_class }}">
                                 <td>{{ wrestler.name }}</td>
                                 <td>{{ wrestler.weight_class }}</td>
-                                <td>{{ stat.wins }}</td>
-                                <td>{{ stat.losses }}</td>
-                                <td>{{ stat.ratio }}</td>
-                                <td>PLACEHOLDER</td>
+                                <td>{{ wrestler.stats.wins }}</td>
+                                <td>{{ wrestler.stats.losses }}</td>
+                                <td>{{ wrestler.stats.ratio }}</td>
+                                <td>
+                                    {% for title_holder in wrestler.wrestler_titleholders %}
+                                        {{ title_holder.title_belt.name }} (won on {{ title_holder.month_won }}/
+                                        {{ title_holder.day_won }}/{{ title_holder.year_won }})
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -70,6 +76,8 @@
                     </div>
                 </div>
                 <button class="btn btn-primary mt-3" onclick="applyFilters()">Filter</button>
+                {#                <button class="btn btn-primary mt-3" onclick="window.location.reload()">Reset</button>#}
+                <button class="btn btn-primary mt-3" onclick="clearFilters()">Clear</button>
                 <input class="ps-3 mt-3" type="text" id="wrestlerIndexSearch" onkeyup="applyFilters()"
                        placeholder="Search for names..">
 
@@ -89,11 +97,40 @@
                     </form>
                 </div>
 
+                <!-- Add Title To Wrestler -->
+                <div class="col">
+                    <h1>Add Title To Wrestler</h1>
+                    <p>Are</p>
+                    <form method="post" id="add-title-to-wrestler">
+                        {% csrf_token %}
+                        {{ add_title_to_form.as_p }}
+                        <button type="submit" id="add_title_form" name="add_title_form"
+                                class="btn btn-primary mt-3 mb-3">Submit
+                        </button>
+                        {% for message in messages %}
+                            <div class="alert alert-info">{{ message }}</div>
+                        {% endfor %}
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+
+        // Function to clear all filters
+        function clearFilters() {
+            // Clear the search input
+            $('#wrestlerIndexSearch').val('');
+
+            // Uncheck all checkboxes
+            $('.form-check-input').prop('checked', false);
+
+            // Run the filter function to update the table
+            applyFilters();
+        }
+
+
         // Function to apply both filters
         // NOTE: having table on-top prevents filter from working
         // NOTE: having table on-top prevents filter from working

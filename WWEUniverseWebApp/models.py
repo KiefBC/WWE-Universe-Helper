@@ -1,28 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
-
-# The only weight classes available
-WEIGHT_CLASSES = [
-    ('LHW', 'Light Heavyweight'),
-    ('HW', 'Heavyweight'),
-    ('SHW', 'Super Heavyweight'),
-    ('CW', 'Cruiserweight'),
-]
-
-# The only days of the week available
-DAYS_OF_WEEK = [
-    ('MON', 'Monday'),
-    ('TUE', 'Tuesday'),
-    ('WED', 'Wednesday'),
-    ('THU', 'Thursday'),
-    ('FRI', 'Friday'),
-    ('SAT', 'Saturday'),
-    ('SUN', 'Sunday'),
-]
+from .helpers import MONTHS, WEIGHT_CLASSES, DAYS_OF_WEEK, YEARS, DAYS_OF_MONTH
 
 
-
-# TODO: Remove show_date from Shows - it is not needed, why does it matter?
 class Shows(models.Model):
     """
     This is our model for representing Wrestling shows.
@@ -31,7 +11,6 @@ class Shows(models.Model):
     show_id = models.IntegerField(default=1)
     show_name = models.CharField(max_length=100)
     show_date = models.CharField(max_length=3, choices=DAYS_OF_WEEK, default='MON')
-
 
     def __str__(self):
         return self.show_name
@@ -85,13 +64,7 @@ class Wrestlers(models.Model):
     weight_class = models.CharField(max_length=3, choices=WEIGHT_CLASSES)
 
     def __str__(self):
-        """
-        This method returns the name of the Wrestler.
-        :return:
-        """
-
-        wrestler_name = self.name.title()
-        return wrestler_name
+        return self.name
 
 
 class TitleBelts(models.Model):
@@ -102,7 +75,9 @@ class TitleBelts(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
     weight_class = models.CharField(max_length=3, choices=WEIGHT_CLASSES)
-    current_holder = models.ForeignKey(Wrestlers, to_field='name', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class WrestlerStats(models.Model):
@@ -112,7 +87,21 @@ class WrestlerStats(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    wrestler = models.ForeignKey(Wrestlers, to_field='name', on_delete=models.CASCADE)
+    wrestler = models.OneToOneField(Wrestlers, on_delete=models.CASCADE, related_name='stats')
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     ratio = models.FloatField(default=0.0)
+
+
+class TitleHolders(models.Model):
+    """
+    This will be our model for representing the History of Title Holders.
+    """
+    wrestler = models.ForeignKey(Wrestlers, on_delete=models.CASCADE, default=1)
+    title_belt = models.ForeignKey(TitleBelts, on_delete=models.CASCADE, default=1)
+    month_won = models.CharField(max_length=2, choices=MONTHS, blank=True, null=True, default='01')
+    day_won = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, null=True, default='1')
+    month_lost = models.CharField(max_length=2, choices=MONTHS, blank=True, null=True)
+    day_lost = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, null=True)
+    year_won = models.CharField(max_length=4, choices=YEARS, blank=True, null=True, default='1')
+    year_lost = models.CharField(max_length=4, choices=YEARS, blank=True, null=True, default='1')

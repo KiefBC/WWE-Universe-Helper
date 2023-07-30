@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import Wrestlers, TitleBelts, Shows
+from .models import Wrestlers, TitleBelts, Shows, WrestlerStats, TitleHolders
+from .helpers import MONTHS, WEIGHT_CLASSES, DAYS_OF_WEEK
 
 
 class AddWrestlerForm(forms.ModelForm):
@@ -25,15 +26,7 @@ class AddTitleBelt(forms.ModelForm):
 
     class Meta:
         model = TitleBelts
-        fields = ['name', 'weight_class', 'current_holder']
-
-    def __init__(self, *args, **kwargs):
-        super(AddTitleBelt, self).__init__(*args, **kwargs)
-        # Inserting a unselectable option at the top of the Current Holder Select Field
-        self.fields['current_holder'].queryset = Wrestlers.objects.all()
-        self.fields['current_holder'].empty_label = 'Select Current Holder'
-        # Allow Current Holder to be blank
-        self.fields['current_holder'].required = False
+        fields = ['name', 'weight_class']
 
     def save(self, commit=True):
         """
@@ -52,7 +45,24 @@ class AddTitleBelt(forms.ModelForm):
     widgets = {
         'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title Belt Name'}),
         'weight_class': forms.Select(attrs={'class': 'form-control'}),
-        'current_holder': forms.Select(attrs={'class': 'form-control'}),
+    }
+
+
+class AddTitleBeltWrestler(forms.ModelForm):
+    """
+    This is our form for only adding existing Title Belts to Wrestlers.
+    """
+
+    class Meta:
+        model = TitleHolders
+        fields = ['wrestler', 'title_belt', 'month_won', 'day_won', 'year_won']
+
+    widgets = {
+        'wrestler': forms.Select(attrs={'class': 'form-control'}),
+        'title_belt': forms.Select(attrs={'class': 'form-control'}),
+        'month_won': forms.Select(attrs={'class': 'form-control'}),
+        'day_won': forms.Select(attrs={'class': 'form-control'}),
+        'year_won': forms.Select(attrs={'class': 'form-control'}),
     }
 
 
