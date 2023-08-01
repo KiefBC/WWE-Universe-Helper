@@ -7,3 +7,12 @@ body {
     margin-bottom: 50px;
 }
 
+#jumbo {
+    background-color: #5e3535;
+    color: #000000;
+}
+
+#wrestlerTable {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+}

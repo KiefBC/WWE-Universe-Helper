@@ -182,8 +182,7 @@ class IndexWrestlers(View):
                 return redirect('list_wrestlers')
 
 
-# TODO: All Show Titles should be Title Cased
-# TODO: If Show Title is less than 3 characters, it should be capitalized
+# TODO: Build A Match Below the Show Table
 class IndexShows(View):
     template_name = 'show_index.html'
 

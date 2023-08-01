@@ -97,11 +97,22 @@ class TitleHolders(models.Model):
     """
     This will be our model for representing the History of Title Holders.
     """
+    id = models.AutoField(primary_key=True)
     wrestler = models.ForeignKey(Wrestlers, on_delete=models.CASCADE, default=1)
     title_belt = models.ForeignKey(TitleBelts, on_delete=models.CASCADE, default=1)
-    month_won = models.CharField(max_length=2, choices=MONTHS, blank=True, null=True, default='01')
-    day_won = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, null=True, default='1')
-    month_lost = models.CharField(max_length=2, choices=MONTHS, blank=True, null=True)
-    day_lost = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, null=True)
-    year_won = models.CharField(max_length=4, choices=YEARS, blank=True, null=True, default='1')
-    year_lost = models.CharField(max_length=4, choices=YEARS, blank=True, null=True, default='1')
+    month_won = models.CharField(max_length=2, choices=MONTHS, blank=True, default='01')
+    day_won = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, default='1')
+    month_lost = models.CharField(max_length=2, choices=MONTHS, blank=True, default='01')
+    day_lost = models.CharField(choices=DAYS_OF_MONTH, max_length=2, blank=True, default='1')
+    year_won = models.CharField(max_length=4, choices=YEARS, blank=True, default='1')
+    year_lost = models.CharField(max_length=4, choices=YEARS, blank=True, default='1')
+
+
+class WrestlerShow(models.Model):
+    """
+    This will be our model for representing the Wrestlers on each Show.
+    """
+
+    id = models.AutoField(primary_key=True)
+    wrestler = models.ForeignKey(Wrestlers, on_delete=models.CASCADE, default=1)
+    show = models.ForeignKey(Shows, on_delete=models.CASCADE, default=1)
