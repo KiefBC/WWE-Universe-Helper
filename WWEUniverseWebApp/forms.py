@@ -106,7 +106,7 @@ class UpdateStats(forms.ModelForm):
 
     class Meta:
         model = WrestlerStats
-        fields = ['wins', 'losses', 'wrestler']
+        fields = ['wins', 'losses']
 
     widgets = {
         'wins': forms.NumberInput(attrs={'class': 'form-control'}),

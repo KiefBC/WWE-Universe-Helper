@@ -277,11 +277,11 @@ class Command(BaseCommand):
                 print(f'{title} already exists in the Title Belts Table')
 
         # Fill our WrestlerStats table with 0, 0 for all wrestlers
-        # print('Populating Wrestler Stats Table')
-        # wrestlers = WWEUniverseWebApp.models.Wrestlers.objects.all()
-        # for wrestler in wrestlers:
-        #     WWEUniverseWebApp.models.WrestlerStats.objects.update_or_create(
-        #         wrestler=wrestler,
-        #         wins=0,
-        #         losses=0,
-        #     )
+        print('Populating Wrestler Stats Table')
+        wrestlers = WWEUniverseWebApp.models.Wrestlers.objects.all()
+        for wrestler in wrestlers:
+            WWEUniverseWebApp.models.WrestlerStats.objects.update_or_create(
+                wrestler=wrestler,
+                wins=0,
+                losses=0,
+            )

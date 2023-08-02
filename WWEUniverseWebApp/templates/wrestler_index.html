@@ -24,9 +24,7 @@
                     <!-- This is where our form will go -->
                     <form method="post" action="{% url 'update_stats' %}">
                         {% csrf_token %}
-                        <!-- The fields of the form will be added here by JavaScript -->
                         {{ update_stats_form.as_p }}
-                        <!-- Display the Wrestler ID -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary" name="save_stats">Save changes</button>
