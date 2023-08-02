@@ -93,6 +93,7 @@ class WrestlerStats(models.Model):
     ratio = models.FloatField(default=0.0)
 
 
+
 class TitleHolders(models.Model):
     """
     This will be our model for representing the History of Title Holders.

@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.core.management import call_command
 from django.db.models import Prefetch
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
-from .forms import AddWrestlerForm, AddTitleBelt, AddAShow, AddTitleBeltWrestler
-from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, TitleHolders
+from .forms import AddWrestlerForm, AddTitleBelt, AddAShow, AddTitleBeltWrestler, UpdateStats
+from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, TitleHolders, WrestlerStats
 
 
 class ComingSoon(View):
@@ -136,6 +137,7 @@ class IndexWrestlers(View):
             'weight_classes': WEIGHT_CLASSES,
             'show_choices': self.show_choices,
             'add_title_to_form': AddTitleBeltWrestler(),
+            'update_stats_form': UpdateStats(),
         }
 
         return render(request, self.template_name, context)
@@ -173,6 +175,30 @@ class IndexWrestlers(View):
                 # Alert the user
                 messages.success(request,
                                  f'{title_name} has been added to {wrestler_name}. History has been made.')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+            else:
+                # Alert the user
+                messages.error(request, f'Error: {form.errors}')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+
+        elif 'save_stats' in request.POST:
+            # Grab our Form
+            form = UpdateStats(request.POST)
+            if form.is_valid():
+                # Select Form Data and Grab the Wrestler and Title Belt
+                wrestler_id = request.POST.get('wrestler-id')
+                selected_wrestler = WrestlerStats.objects.get(wrestler=wrestler_name)
+
+                # Update the Wrestler's Stats
+                selected_wrestler.stats.wins = form.cleaned_data['wins']
+                selected_wrestler.stats.losses = form.cleaned_data['losses']
+                selected_wrestler.stats.save()
+
+                # Alert the user
+                messages.success(request,
+                                 f'{wrestler_name} has been updated.')
                 # Redirect to the coming_soon page
                 return redirect('list_wrestlers')
             else:
@@ -234,3 +260,26 @@ class IndexShows(View):
         else:
             messages.error(request, 'Error: Invalid Form')
             return redirect('list_shows')
+
+
+class UpdateInformation(View):
+    """
+    We will Update stuff.
+    """
+    def post(self, request):
+
+        form = UpdateStats(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            wrestler_name = form.cleaned_data['wrestler']
+            wins = form.cleaned_data['wins']
+            losses = form.cleaned_data['losses']
+            selected_wrestler, _ = WrestlerStats.objects.get_or_create(wrestler=wrestler_name)
+            selected_wrestler.wins += wins
+            selected_wrestler.losses += losses
+            selected_wrestler.save()
+            messages.success(request, f'{selected_wrestler.wrestler.name} has been updated.')
+            return redirect('list_wrestlers')
+        else:
+            messages.success(request, f'Error: {form.errors}')
+            return redirect('coming_soon')

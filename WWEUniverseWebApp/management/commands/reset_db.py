@@ -235,7 +235,6 @@ class Command(BaseCommand):
             )
             if created:
                 wrestler.save()
-                print(f'Added {name} to the Wrestlers Table')
             else:
                 print(f'{name} already exists in the Wrestlers Table')
 
@@ -255,7 +254,6 @@ class Command(BaseCommand):
             )
             if created:
                 show.save()
-                print(f'Added {show} to the Shows Table')
             else:
                 print(f'{show} already exists in the Shows Table')
 
@@ -275,21 +273,15 @@ class Command(BaseCommand):
             )
             if created:
                 title_belt.save()
-                print(f'Added {title} to the Title Belts Table')
             else:
                 print(f'{title} already exists in the Title Belts Table')
 
-        # Add a random win and loss to each wrestler
-        # print('Adding random wins and losses to each wrestler')
-        # wins_losses = {}
-        # # Loop through each wrestler and update the dictionary with values
-        # for wrestler in WWEUniverseWebApp.models.Wrestlers.objects.all():
-        #     wins_losses[wrestler.name] = {'wins': random.randint(0, 100), 'losses': random.randint(0, 100)}
-        # # Apply the dictionary to the WrestlerStats Table
-        # for wrestler, attrs in wins_losses.items():
+        # Fill our WrestlerStats table with 0, 0 for all wrestlers
+        # print('Populating Wrestler Stats Table')
+        # wrestlers = WWEUniverseWebApp.models.Wrestlers.objects.all()
+        # for wrestler in wrestlers:
         #     WWEUniverseWebApp.models.WrestlerStats.objects.update_or_create(
-        #         wrestler=WWEUniverseWebApp.models.Wrestlers.objects.get(name=wrestler),
-        #         wins=attrs['wins'],
-        #         losses=attrs['losses'],
+        #         wrestler=wrestler,
+        #         wins=0,
+        #         losses=0,
         #     )
-        #     print(f'Added {attrs["wins"]} wins and {attrs["losses"]} losses to {wrestler}')

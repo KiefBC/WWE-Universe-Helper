@@ -93,3 +93,22 @@ class AddAShow(forms.ModelForm):
         'show_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Show Name'}),
         'show_date': forms.Select(attrs={'class': 'form-control'})
     }
+
+
+class UpdateStats(forms.ModelForm):
+    """
+    This is our form for updating a Wrestler's Stats.
+    """
+    wrestler = forms.ModelChoiceField(
+        queryset=Wrestlers.objects.all(),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
+    )
+
+    class Meta:
+        model = WrestlerStats
+        fields = ['wins', 'losses', 'wrestler']
+
+    widgets = {
+        'wins': forms.NumberInput(attrs={'class': 'form-control'}),
+        'losses': forms.NumberInput(attrs={'class': 'form-control'}),
+    }
