@@ -1,17 +1,18 @@
 body {
     background-color: #2e2e2e;
-    color: yellow;
+    color: #741ec0;
 }
 
 .navbar {
     margin-bottom: 50px;
 }
 
-/*.searching {*/
-/*    background-color: #5E5694;*/
-/*    align-content: center;*/
-/*    text-align: center;*/
-/*    padding: 10px;*/
-/*    margin: 10px;*/
-/*}*/
+#jumbo {
+    background-color: #5e3535;
+    color: #000000;
+}
 
+#wrestlerTable {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+}

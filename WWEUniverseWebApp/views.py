@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.core.management import call_command
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import AddWrestlerForm, AddTitleBelt, AddAShow
-from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, WrestlerStats
+
+from .forms import AddWrestlerForm, AddTitleBelt, AddAShow, AddTitleBeltWrestler, UpdateStats
+from .models import WEIGHT_CLASSES, DAYS_OF_WEEK, Shows, TitleBelts, Wrestlers, TitleHolders, WrestlerStats
 
 
 class ComingSoon(View):
@@ -29,6 +31,7 @@ class ComingSoon(View):
     def get(self, request):
         return render(request, self.template_name, self.context)
 
+    @staticmethod
     def run_db_reset(request):
         """
         This method resets our database.
@@ -45,7 +48,8 @@ class ComingSoon(View):
             messages.error(request, f'Error: {e}')
             return redirect('coming_soon')
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """
         This method adds a Wrestler to our Wrestlers Table.
         :param request:
@@ -114,7 +118,8 @@ class ComingSoon(View):
                 return redirect('coming_soon')
 
 
-# TODO: Add Title Belt Option to Wrestler Entry
+# TODO: When Adding Title To New Wrestler, Remove From Previous Wrestler
+# TODO: Wrestler Names Should Be Unique and Title Cased
 class IndexWrestlers(View):
     template_name = 'wrestler_index.html'
 
@@ -122,41 +127,63 @@ class IndexWrestlers(View):
     show_choices = Shows.show_choices()
 
     def get(self, request):
-        # Grab all of our Wrestlers
-        wrestlers = Wrestlers.objects.all().order_by('name', 'weight_class')
-        # Grab all of our Wrestlers Stats
-        wrestler_stats = WrestlerStats.objects.all().order_by('wrestler__name', 'wrestler__weight_class')
-        # Zip our Wrestlers and Wrestler Stats together
-        wrestlers = zip(wrestlers, wrestler_stats)
-        # Create our context
+        wrestlers = Wrestlers.objects.select_related('stats').prefetch_related(
+            Prefetch('titleholders_set', to_attr='wrestler_titleholders'))
+
         context = {
             'wrestlers': wrestlers,
             'add_wrestler_form': AddWrestlerForm(),
             'weight_classes': WEIGHT_CLASSES,
             'show_choices': self.show_choices,
+            'add_title_to_form': AddTitleBeltWrestler(),
+            'update_stats_form': UpdateStats(),
         }
+
         return render(request, self.template_name, context)
 
-    def post(self, request):
-        # Grab our Form
-        form = AddWrestlerForm(request.POST)
-        # Check if the form is valid
-        if form.is_valid():
-            # Save the form
-            form.save()
-            # Alert the user
-            messages.success(request, f'{form.cleaned_data["name"]} has been added to the database')
-            # Redirect to the coming_soon page
-            return redirect('list_wrestlers')
-        else:
-            # Alert the user
-            messages.error(request, f'Error: {form.errors}')
-            # Redirect to the coming_soon page
-            return redirect('list_wrestlers')
+    @staticmethod
+    def post(request):
+        if 'add_wrestler_form' in request.POST:
+            form = AddWrestlerForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f'{form.cleaned_data["name"]} has been added to the database')
+                return redirect('list_wrestlers')
+            else:
+                # Alert the user
+                messages.error(request, f'Error: {form.errors}')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+        elif 'add_title_form' in request.POST:
+            # Grab our Form
+            form = AddTitleBeltWrestler(request.POST)
+            if form.is_valid():
+
+                # Select Form Data and Grab the Wrestler and Title Belt
+                title_name = form.cleaned_data['title_belt']
+                wrestler_name = form.cleaned_data['wrestler']
+                month_won = form.cleaned_data['month_won']
+                day_won = form.cleaned_data['day_won']
+                selected_wrestler = Wrestlers.objects.get(name=wrestler_name)
+                selected_title = TitleBelts.objects.get(name=title_name)
+
+                # Add the Title Belt to the Wrestler in our TitleHolders Table
+                TitleHolders.objects.create(wrestler=selected_wrestler, title_belt=selected_title, month_won=month_won,
+                                            day_won=day_won)
+
+                # Alert the user
+                messages.success(request,
+                                 f'{title_name} has been added to {wrestler_name}. History has been made.')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
+            else:
+                # Alert the user
+                messages.error(request, f'Error: {form.errors}')
+                # Redirect to the coming_soon page
+                return redirect('list_wrestlers')
 
 
-# TODO: All Show Titles should be Title Cased
-# TODO: If Show Title is less than 3 characters, it should be capitalized
+# TODO: Build A Match Below the Show Table
 class IndexShows(View):
     template_name = 'show_index.html'
 
@@ -173,7 +200,8 @@ class IndexShows(View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         # Grab our Form
         form = AddAShow(request.POST)
         # Check if the form is valid
@@ -207,3 +235,41 @@ class IndexShows(View):
         else:
             messages.error(request, 'Error: Invalid Form')
             return redirect('list_shows')
+
+class UpdateInformation(View):
+    """
+    We will Update stuff.
+    """
+
+    def get(self, request):
+        print('GET')
+        return redirect('list_wrestlers')
+
+    def post(self, request):
+        print('POST')
+        form = UpdateStats(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            print('VALID')
+            wrestler_name = form.cleaned_data['wrestler']
+            wrestler_wins = WrestlerStats.objects.get(wrestler=wrestler_name).wins
+            print(wrestler_wins)
+            wrestler_losses = WrestlerStats.objects.get(wrestler=wrestler_name).losses
+            print(wrestler_losses)
+            print(wrestler_name)
+            wins = form.cleaned_data['wins'] + wrestler_wins
+            losses = form.cleaned_data['losses'] + wrestler_losses
+            ratio = round(wins / losses, 2) if losses != 0 else wins
+            selected_wrestler, created = WrestlerStats.objects.update_or_create(
+                wrestler=wrestler_name,
+                defaults={'wins': wins, 'losses': losses, 'ratio': ratio}
+            )
+            if created:
+                messages.success(request, f'{selected_wrestler.wrestler.name} has been added.')
+            else:
+                messages.success(request, f'{selected_wrestler.wrestler.name} has been updated.')
+            return redirect('list_wrestlers')
+        else:
+            print('INVALID')
+            messages.error(request, f'Error: {form.errors}')  # Change success to error here as it's more suitable.
+            return redirect('coming_soon')
